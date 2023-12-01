@@ -1,6 +1,6 @@
 # XrayWeave
 
-A helper for [xray-core](https://github.com/XTLS/Xray-core) to parse xray config links.
+Helper for [xray-core](https://github.com/XTLS/Xray-core) to parse URI links or construct configuration by yourself.
 
 ## Table of Contents
 - [Introduction](#introduction)
@@ -12,7 +12,7 @@ A helper for [xray-core](https://github.com/XTLS/Xray-core) to parse xray config
 
 ## Introduction
 
-The Xray Config Parser is a utility designed to assist xray-core users to create configuration for the xray VPN. It simplifies the process of extracting from URI and manipulating configuration information.
+The XrayWeave is a utility designed to assist xray-core users to create configuration for the Xray VPN using Swift. It simplifies the process of extracting from URI and manipulating configuration information.
 
 ## Features
 
@@ -24,7 +24,7 @@ The Xray Config Parser is a utility designed to assist xray-core users to create
 
 ### Installation
 
-The preferred way of installing SwiftUIX is via the [Swift Package Manager](https://swift.org/package-manager/).
+The preferred way of installing XrayWeave is via the [Swift Package Manager](https://swift.org/package-manager/).
 
 ```swift
 /// Package.swift
@@ -47,9 +47,33 @@ func connect() {
     &type=tcp&security=reality&fp=safari&sni=dl.google.com&pbk=publickey&sid=7d263c#X-ray
     """
 
-    let parser = try XrayWeave(urlString: Fixtures.uri)
+    let inboundTag = "socketinbound"
+    let newInbound = InboundProxy(
+        listen: "[::1]",
+        port: inboundPort,
+        protocol: .socks,
+        settings: .socks(SocksInboundConfigurationObject(auth: .noauth, udp: true)),
+        tag: inboundTag
+    )
+
+    let config = try XrayWeave(urlString: uri)
         .getConfiguration()
+        .logLevel(.debug)
+        .routing(
+            Route(
+                domainStrategy: .asIs,
+                rules: [
+                    Route.Rule(
+                        inboundTag: [inboundTag],
+                        outboundTag: .proxy
+                    )
+                ]
+            )
+        )
+        .inbound(newInbound)
         .toJSON()
+        
+    try xray.connect(config)
 }
 ```
 
