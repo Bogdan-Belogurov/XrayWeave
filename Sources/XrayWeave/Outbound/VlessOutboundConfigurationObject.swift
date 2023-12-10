@@ -3,15 +3,25 @@
 
 public struct VlessOutboundConfigurationObject: Encodable, XrayParsable {
 
-    let address: String
+    public let address: String
 
-    let port: Int
+    public let port: Int
 
-    let users: [User]
+    public let users: [User]
 
     init(_ parser: XrayWeave) throws {
         address = parser.host
         port = parser.port
         users = [try User(parser)]
+    }
+
+    public init(
+        address: String,
+        port: Int,
+        users: [User]
+    ) {
+        self.address = address
+        self.port = port
+        self.users = users
     }
 }

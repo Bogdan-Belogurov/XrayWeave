@@ -17,22 +17,24 @@ public struct StreamSettings: Encodable, XrayParsable {
     }
 
     /// The TCP configuration of the current connection, valid only when this connection uses TCP.
-    struct TCP: Encodable {
+    public struct TCP: Encodable {
 
-        enum HeaderType: String, Encodable {
+        public enum HeaderType: String, Encodable {
 
             case none
         }
 
-        struct Header: Encodable {
+        public struct Header: Encodable {
 
             var type: HeaderType = .none
         }
 
-        let header = Header()
+        public let header = Header()
+
+        public init() {}
     }
 
-    enum Fingerprint: String, Encodable, XrayParsable {
+    public enum Fingerprint: String, Encodable, XrayParsable {
 
         case chrome     = "chrome"
         case firefox    = "firefox"
@@ -62,18 +64,18 @@ public struct StreamSettings: Encodable, XrayParsable {
         }
     }
 
-    struct TLS: Encodable, XrayParsable {
+    public struct TLS: Encodable, XrayParsable {
 
-        enum ALPN: String, CaseIterable, Codable {
+        public enum ALPN: String, CaseIterable, Codable {
 
             case h2         = "h2"
             case http1_1    = "http/1.1"
         }
 
-        var serverName: String = ""
-        var allowInsecure: Bool = false
-        var alpn: [ALPN] = ALPN.allCases
-        var fingerprint: Fingerprint = .chrome
+        public var serverName: String = ""
+        public var allowInsecure: Bool = false
+        public var alpn: [ALPN] = ALPN.allCases
+        public var fingerprint: Fingerprint = .chrome
 
         init(_ parser: XrayWeave) throws {
             guard parser.security == .tls else {
@@ -96,7 +98,7 @@ public struct StreamSettings: Encodable, XrayParsable {
         }
     }
 
-    struct Reality: Encodable, XrayParsable {
+    public struct Reality: Encodable, XrayParsable {
 
         var show: Bool = false
         var fingerprint: Fingerprint = .chrome
@@ -122,13 +124,29 @@ public struct StreamSettings: Encodable, XrayParsable {
             shortId = parser.parametersMap["sid"] ?? String()
             spiderX = parser.parametersMap["spx"] ?? String()
         }
+
+        public init(
+            show: Bool = false,
+            fingerprint: Fingerprint = .chrome,
+            serverName: String = "",
+            publicKey: String = "",
+            shortId: String = "",
+            spiderX: String = ""
+        ) {
+            self.show = show
+            self.fingerprint = fingerprint
+            self.serverName = serverName
+            self.publicKey = publicKey
+            self.shortId = shortId
+            self.spiderX = spiderX
+        }
     }
 
-    let network: Network
-    let security: Security
-    var tcpSettings: TCP? = nil
-    var realitySettings: Reality? = nil
-    var tlsSettings: TLS? = nil
+    public let network: Network
+    public let security: Security
+    public var tcpSettings: TCP? = nil
+    public var realitySettings: Reality? = nil
+    public var tlsSettings: TLS? = nil
 
     init(_ parser: XrayWeave) throws {
         network = parser.network
@@ -149,5 +167,19 @@ public struct StreamSettings: Encodable, XrayParsable {
         case .tls:
             tlsSettings = try TLS(parser)
         }
+    }
+
+    public init(
+        network: Network,
+        security: Security,
+        tcpSettings: TCP? = nil,
+        realitySettings: Reality? = nil,
+        tlsSettings: TLS? = nil
+    ) {
+        self.network = network
+        self.security = security
+        self.tcpSettings = tcpSettings
+        self.realitySettings = realitySettings
+        self.tlsSettings = tlsSettings
     }
 }

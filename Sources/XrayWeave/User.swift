@@ -3,23 +3,28 @@
 
 import Foundation
 
-struct User: Encodable, XrayParsable {
+public struct User: Encodable, XrayParsable {
 
-    enum Flow: String, Encodable {
+    public enum Flow: String, Encodable {
 
         case none                       = "none"
         case xtls_rprx_vision           = "xtls-rprx-vision"
         case xtls_rprx_vision_udp443    = "xtls-rprx-vision-udp443"
     }
 
-    let id: String
-    let flow: Flow
-    let encryption: String = "none"
-    let level: Int = 0
+    public let id: String
+    public let flow: Flow
+    public let encryption: String = "none"
+    public let level: Int = 0
 
     init(_ parser: XrayWeave) throws {
         let flow = try Self.getFlow(parser.parametersMap)
         id = parser.userID
+        self.flow = flow
+    }
+
+    public init(id: String, flow: Flow) {
+        self.id = id
         self.flow = flow
     }
 

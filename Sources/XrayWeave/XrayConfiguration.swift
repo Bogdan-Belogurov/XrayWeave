@@ -14,6 +14,8 @@ public final class XrayConfiguration: Encodable, XrayParsable {
         outbounds = [try OutboundProxy(parser)]
     }
 
+    public init() {}
+
     public func logLevel(_ logLevel: LogLevel) -> Self {
         log.loglevel = logLevel
         return self
